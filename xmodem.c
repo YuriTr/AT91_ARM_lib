@@ -20,7 +20,7 @@
 //#include "timer.h"
 #include <stdint.h>
 
-#include "inc\xmodem.h"
+#include "xmodem.h"
 
 #ifndef XMODEM_BUFFER_SIZE
 #define XMODEM_BUFFER_SIZE		1024
