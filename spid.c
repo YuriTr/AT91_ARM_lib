@@ -31,9 +31,9 @@
 //         Headers
 //------------------------------------------------------------------------------
 
-#include "inc\spid.h"
-#include "inc\board.h"
-#include "inc\assert.h"
+#include "spid.h"
+#include <board.h>
+#include "assert.h"
 
 //------------------------------------------------------------------------------
 //         Macros

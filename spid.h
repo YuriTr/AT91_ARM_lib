@@ -82,7 +82,7 @@
 //         Headers
 //------------------------------------------------------------------------------
 
-#include "board.h"
+#include <board.h>
 #include <stdint.h>
 //------------------------------------------------------------------------------
 //         Definitions
@@ -104,7 +104,9 @@
 #define SPID_PCS_VAR     1
 
 //! Peripheral Select mode.
-#define SPID_PCS_MODE    SPID_PCS_VAR
+#ifndef SPID_PCS_MODE
+#define SPID_PCS_MODE    SPID_PCS_FIX
+#endif
 
 /// Calculates the value of the SCBR field of the Chip Select Register given
 /// MCK and SPCK.

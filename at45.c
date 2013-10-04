@@ -31,9 +31,9 @@
 //         Headers
 //------------------------------------------------------------------------------
 
-#include "inc\at45.h"
-#include "inc\board.h"
-#include "inc\assert.h"
+#include "at45.h"
+#include <board.h>
+#include "assert.h"
 
 #include <string.h>
 
