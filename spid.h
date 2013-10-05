@@ -84,6 +84,9 @@
 
 #include <board.h>
 #include <stdint.h>
+#ifdef __RTX
+#include <RTL.h>								 
+#endif
 //------------------------------------------------------------------------------
 //         Definitions
 //------------------------------------------------------------------------------
@@ -173,8 +176,12 @@ typedef struct {
 	char spiId;
     /// Current SpiCommand being processed
 	SpidCmd *pCurrentCommand;
+    #ifdef __RTX
+    OS_MUT  SpidMutex;
+    #else
     /// Mutual exclusion semaphore.
 	volatile char semaphore;
+    #endif
 
 } Spid;
 

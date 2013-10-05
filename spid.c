@@ -64,9 +64,13 @@ unsigned char SPID_Configure(Spid *pSpid, AT91S_SPI *pSpiHw, unsigned char spiId
     // Initialize the SPI structure
     pSpid->pSpiHw = pSpiHw;
     pSpid->spiId  = spiId;
-    pSpid->semaphore = 1;
     pSpid->pCurrentCommand = 0;
 
+    #ifdef __RTX
+    os_mut_init(  pSpid->SpidMutex);
+    #else
+    pSpid->semaphore = 1;
+    #endif
     // Enable the SPI clock
     WRITE_PMC(AT91C_BASE_PMC, PMC_PCER, (1 << pSpid->spiId));
     
@@ -132,12 +136,16 @@ unsigned char SPID_SendCommand(Spid *pSpid, SpidCmd *pCommand)
         unsigned int spiMr;
     #endif
          
-     // Try to get the dataflash semaphore
+    #ifdef __RTX
+    os_mut_wait(pSpid->SpidMutex,0xffff); //позже можно добавить поле timeout в структуру SpidCmd. Пока с бесконечным ожиданием.
+    #else
+    // Try to get the dataflash semaphore
      if (pSpid->semaphore == 0) {
     
          return SPID_ERROR_LOCK;
     }
      pSpid->semaphore--;
+    #endif
 
     // Enable the SPI clock
     WRITE_PMC(AT91C_BASE_PMC, PMC_PCER, (1 << pSpid->spiId));
@@ -209,8 +217,12 @@ void SPID_Handler(Spid *pSpid)
         // Disable buffer complete interrupt
         WRITE_SPI(pSpiHw, SPI_IDR, AT91C_SPI_RXBUFF);
 
+        #ifdef __RTX
+        os_mut_release(pSpid->SpidMutex);
+        #else
         // Release the dataflash semaphore
         pSpid->semaphore++;
+        #endif
             
         // Invoke the callback associated with the current command
         if (pSpidCmd && pSpidCmd->callback) {
@@ -230,6 +242,17 @@ void SPID_Handler(Spid *pSpid)
 */
 unsigned char SPID_IsBusy(const Spid *pSpid)
 {
+    #ifdef __RTX
+    OS_RESULT res;
+    res = os_mut_wait(pSpid->SpidMutex,0);
+    if (res==OS_R_TMO) {
+        return 1;
+    }
+    else {
+        os_mut_release(pSpid->SpidMutex);
+        return 0;
+    }
+    #else
     if (pSpid->semaphore == 0) {
 
         return 1;
@@ -238,5 +261,6 @@ unsigned char SPID_IsBusy(const Spid *pSpid)
 
         return 0;
     }
+    #endif
 }
 
