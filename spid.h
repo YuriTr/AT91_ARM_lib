@@ -200,6 +200,10 @@ extern unsigned char SPID_SendCommand(
 	Spid *pSpid,
 	SpidCmd *pCommand);
 
+#if SPID_PCS_MODE == SPID_PCS_VAR
+extern unsigned char SPID_SendVarCS(Spid *pSpid, SpidCmd *pCommand);
+#endif
+
 extern void SPID_Handler(Spid *pSpid);
 
 extern unsigned char SPID_IsBusy(const Spid *pSpid);
