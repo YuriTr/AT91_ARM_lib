@@ -212,8 +212,6 @@ unsigned char SPID_SendVarCS(Spid *pSpid, SpidCmd *pCommand)
 {
     AT91S_SPI *pSpiHw = pSpid->pSpiHw;
 
-    uint16_t n;
-         
     #ifdef __RTX
     os_mut_wait(pSpid->SpidMutex,0xffff); //позже можно добавить поле timeout в структуру SpidCmd. Пока с бесконечным ожиданием.
     #else
