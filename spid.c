@@ -244,12 +244,12 @@ unsigned char SPID_IsBusy(const Spid *pSpid)
 {
     #ifdef __RTX
     OS_RESULT res;
-    res = os_mut_wait(pSpid->SpidMutex,0);
+    res = os_mut_wait(&(pSpid->SpidMutex),0);
     if (res==OS_R_TMO) {
         return 1;
     }
     else {
-        os_mut_release(pSpid->SpidMutex);
+        os_mut_release(&(pSpid->SpidMutex));
         return 0;
     }
     #else
