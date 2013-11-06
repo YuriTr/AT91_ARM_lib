@@ -177,7 +177,7 @@ typedef struct {
     /// Current SpiCommand being processed
 	SpidCmd *pCurrentCommand;
     #ifdef __RTX
-    OS_MUT  SpidMutex;
+    OS_SEM  semaphore;
     #else
     /// Mutual exclusion semaphore.
 	volatile char semaphore;
