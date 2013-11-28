@@ -67,7 +67,7 @@ unsigned char SPID_Configure(Spid *pSpid, AT91S_SPI *pSpiHw, unsigned char spiId
     pSpid->pCurrentCommand = 0;
 
     #ifdef __RTX
-    os_mut_init(  pSpid->SpidMutex);
+    os_sem_init(&(pSpid->semaphore),1);
     #else
     pSpid->semaphore = 1;
     #endif
@@ -137,7 +137,7 @@ unsigned char SPID_SendCommand(Spid *pSpid, SpidCmd *pCommand)
     #endif
          
     #ifdef __RTX
-    os_mut_wait(pSpid->SpidMutex,0xffff); //позже можно добавить поле timeout в структуру SpidCmd. Пока с бесконечным ожиданием.
+    os_sem_wait(&(pSpid->semaphore),0xffff); //позже можно добавить поле timeout в структуру SpidCmd. Пока с бесконечным ожиданием.
     #else
     // Try to get the dataflash semaphore
      if (pSpid->semaphore == 0) {
@@ -280,7 +280,7 @@ void SPID_Handler(Spid *pSpid)
         WRITE_SPI(pSpiHw, SPI_IDR, AT91C_SPI_RXBUFF);
 
         #ifdef __RTX
-        os_mut_release(pSpid->SpidMutex);
+        isr_sem_send(&(pSpid->semaphore));
         #else
         // Release the dataflash semaphore
         pSpid->semaphore++;
@@ -306,12 +306,12 @@ unsigned char SPID_IsBusy(const Spid *pSpid)
 {
     #ifdef __RTX
     OS_RESULT res;
-    res = os_mut_wait(pSpid->SpidMutex,0);
+    res = os_sem_wait(&(pSpid->semaphore),0);
     if (res==OS_R_TMO) {
         return 1;
     }
     else {
-        os_mut_release(pSpid->SpidMutex);
+        os_sem_send(&(pSpid->semaphore));
         return 0;
     }
     #else
